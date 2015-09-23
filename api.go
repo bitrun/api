@@ -53,8 +53,8 @@ func HandleRun(c *gin.Context) {
 		return
 	}
 
-	c.Writer.Header().Set("X-Exit-Code", strconv.Itoa(result.ExitCode))
-	c.Writer.Header().Set("X-Duration", result.Duration)
+	c.Writer.Header().Set("X-Run-ExitCode", strconv.Itoa(result.ExitCode))
+	c.Writer.Header().Set("X-Run-Duration", result.Duration)
 
 	c.String(200, result.Output)
 }
