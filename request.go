@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -12,6 +13,8 @@ type Request struct {
 	Command  string
 	Image    string
 }
+
+var FilenameRegexp = regexp.MustCompile(`\A([a-z\d\-\_]+)\.[a-z]{1,3}\z`)
 
 func normalizeString(val string) string {
 	return strings.ToLower(strings.TrimSpace(val))
@@ -26,6 +29,10 @@ func ParseRequest(r *http.Request) (*Request, error) {
 
 	if req.Filename == "" {
 		return nil, fmt.Errorf("Filename is required")
+	}
+
+	if !FilenameRegexp.Match([]byte(req.Filename)) {
+		return nil, fmt.Errorf("Invalid filename")
 	}
 
 	if req.Content == "" {
