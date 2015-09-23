@@ -35,7 +35,7 @@ func GetLanguageConfig(filename string) (*Language, error) {
 	ext := filepath.Ext(strings.ToLower(filename))
 
 	if !ValidLanguage(ext) {
-		return nil, fmt.Errorf("Extension is not supported:", filename)
+		return nil, fmt.Errorf("Extension is not supported: %s", ext)
 	}
 
 	lang := Extensions[ext]
