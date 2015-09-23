@@ -72,7 +72,7 @@ func (run *Run) Setup() error {
 
 	container, err := run.Client.CreateContainer(opts)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	run.Container = container
