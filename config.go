@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 )
 
 type Config struct {
@@ -25,10 +24,7 @@ func NewConfig() (*Config, error) {
 		return nil, fmt.Errorf("Please set SHARED_PATH environment variable")
 	}
 
-	// Expand home path if necessary
-	if strings.Index(cfg.SharedPath, "~") == 0 {
-		cfg.SharedPath = strings.Replace(cfg.SharedPath, "~", os.Getenv("HOME"), 1)
-	}
+	cfg.SharedPath = expandPath(cfg.SharedPath)
 
 	return &cfg, nil
 }

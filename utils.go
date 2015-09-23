@@ -3,6 +3,8 @@ package main
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"os"
+	"strings"
 )
 
 func randomHex(n int) (string, error) {
@@ -11,4 +13,12 @@ func randomHex(n int) (string, error) {
 		return "", err
 	}
 	return hex.EncodeToString(bytes), nil
+}
+
+func expandPath(path string) string {
+	if strings.Index(path, "~") == 0 {
+		path = strings.Replace(path, "~", os.Getenv("HOME"), 1)
+	}
+
+	return path
 }
