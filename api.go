@@ -12,7 +12,15 @@ func errorReponse(err error, c *gin.Context) {
 	c.JSON(400, result)
 }
 
+func setCorsHeaders(c *gin.Context) {
+	c.Writer.Header().Add("Access-Control-Allow-Origin", "*")
+	c.Writer.Header().Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+}
+
 func HandleRun(c *gin.Context) {
+	// We only need CORS for this endpoint
+	setCorsHeaders(c)
+
 	req, err := ParseRequest(c.Request)
 	if err != nil {
 		errorReponse(err, c)
