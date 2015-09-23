@@ -14,7 +14,7 @@ type Request struct {
 	Image    string
 }
 
-var FilenameRegexp = regexp.MustCompile(`\A([a-z\d\-\_]+)\.[a-z]{1,3}\z`)
+var FilenameRegexp = regexp.MustCompile(`\A([a-z\d\-\_]+)\.[a-z]{1,6}\z`)
 
 func normalizeString(val string) string {
 	return strings.ToLower(strings.TrimSpace(val))
