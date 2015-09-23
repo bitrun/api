@@ -30,14 +30,12 @@ func HandleRun(c *gin.Context) {
 	}
 
 	run := NewRun(config.(*Config), client.(*docker.Client), req)
+	defer run.Destroy()
 
-	err = run.Setup()
-	if err != nil {
+	if err := run.Setup(); err != nil {
 		errorReponse(err, c)
 		return
 	}
-
-	defer run.Destroy()
 
 	result, err := run.Start()
 	if err != nil {
