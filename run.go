@@ -84,7 +84,6 @@ func (run *Run) Start() (*RunResult, error) {
 
 	err := run.Client.StartContainer(run.Container.ID, run.Container.HostConfig)
 	if err != nil {
-		fmt.Println("Error while starting container:", err)
 		return nil, err
 	}
 
@@ -92,7 +91,7 @@ func (run *Run) Start() (*RunResult, error) {
 
 	exitCode, err := run.Client.WaitContainer(run.Container.ID)
 	if err != nil {
-		fmt.Println("Error while waiting for caontainer:", err)
+		return nil, err
 	}
 
 	result.Duration = time.Now().Sub(ts).String()
@@ -110,7 +109,6 @@ func (run *Run) Start() (*RunResult, error) {
 	})
 
 	if err != nil {
-		fmt.Println("Error while getting logs:", err)
 		return nil, err
 	}
 
@@ -119,13 +117,11 @@ func (run *Run) Start() (*RunResult, error) {
 }
 
 func (run *Run) Destroy() error {
-	fmt.Println("Destroying container")
 	run.Client.RemoveContainer(docker.RemoveContainerOptions{
 		ID:            run.Container.ID,
 		RemoveVolumes: true,
 		Force:         true,
 	})
 
-	fmt.Println("Destroying file")
 	return os.RemoveAll(run.VolumePath)
 }
