@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	docker "github.com/fsouza/go-dockerclient"
 	gin "github.com/gin-gonic/gin"
 )
@@ -43,7 +45,10 @@ func HandleRun(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, result)
+	c.Writer.Header().Set("X-Exit-Code", strconv.Itoa(result.ExitCode))
+	c.Writer.Header().Set("X-Duration", result.Duration)
+
+	c.String(200, result.Output)
 }
 
 func RunApi(config *Config, client *docker.Client) {
