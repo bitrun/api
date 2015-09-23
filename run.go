@@ -117,11 +117,13 @@ func (run *Run) Start() (*RunResult, error) {
 }
 
 func (run *Run) Destroy() error {
-	run.Client.RemoveContainer(docker.RemoveContainerOptions{
-		ID:            run.Container.ID,
-		RemoveVolumes: true,
-		Force:         true,
-	})
+	if run.Container != nil {
+		run.Client.RemoveContainer(docker.RemoveContainerOptions{
+			ID:            run.Container.ID,
+			RemoveVolumes: true,
+			Force:         true,
+		})
+	}
 
 	return os.RemoveAll(run.VolumePath)
 }
