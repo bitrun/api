@@ -16,12 +16,18 @@ type Run struct {
 	Container  *docker.Container
 	Client     *docker.Client
 	Request    *Request
+	Done       chan bool
 }
 
 type RunResult struct {
 	ExitCode int    `json:"exit_code"`
 	Output   string `json:"output"`
 	Duration string `json:"-"`
+}
+
+type Done struct {
+	*RunResult
+	error
 }
 
 func NewRun(config *Config, client *docker.Client, req *Request) *Run {
@@ -32,6 +38,7 @@ func NewRun(config *Config, client *docker.Client, req *Request) *Run {
 		Client:     client,
 		VolumePath: fmt.Sprintf("%s/%s", config.SharedPath, id),
 		Request:    req,
+		Done:       make(chan bool),
 	}
 }
 
@@ -114,6 +121,23 @@ func (run *Run) Start() (*RunResult, error) {
 
 	result.Output = buff.String()
 	return &result, nil
+}
+
+func (run *Run) StartWithTimeout(duration time.Duration) (*RunResult, error) {
+	timeout := time.After(duration)
+	chDone := make(chan Done)
+
+	go func() {
+		res, err := run.Start()
+		chDone <- Done{res, err}
+	}()
+
+	select {
+	case done := <-chDone:
+		return done.RunResult, done.error
+	case <-timeout:
+		return nil, fmt.Errorf("Operation timed out after %s", duration.String())
+	}
 }
 
 func (run *Run) Destroy() error {
