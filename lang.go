@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
 	"strings"
 )
@@ -11,15 +13,7 @@ type Language struct {
 	Command string
 }
 
-// TODO: This should be extracted
-var Extensions = map[string]Language{
-	".rb":     Language{"ruby:2.2", "ruby %s"},
-	".py":     Language{"python:2.7", "python %s"},
-	".js":     Language{"node:0.12", "node %s"},
-	".go":     Language{"golang:1.5", "go run %s"},
-	".php":    Language{"php:5.6", "php %s"},
-	".coffee": Language{"coffescript:0.12", "coffee %s"},
-}
+var Extensions map[string]Language
 
 func ValidLanguage(ext string) bool {
 	for k, _ := range Extensions {
@@ -40,4 +34,14 @@ func GetLanguageConfig(filename string) (*Language, error) {
 
 	lang := Extensions[ext]
 	return &lang, nil
+}
+
+func LoadLanguages(file string) error {
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(data, &Extensions)
+	return err
 }

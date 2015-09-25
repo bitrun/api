@@ -1,0 +1,26 @@
+{
+  ".rb": {
+    "image": "ruby:2.2",
+    "command": "ruby %s"
+  },
+  ".py": {
+    "image": "python:2.7",
+    "command": "python %s"
+  },
+  ".js": {
+    "image": "node:0.12",
+    "command": "node %s"
+  },
+  ".go": {
+    "image": "golang:1.5",
+    "command": "go run %s"
+  },
+  ".php": {
+    "image": "php:5.6",
+    "command": "php %s"
+  },
+  ".coffee": {
+    "image": "coffescript:0.12",
+    "command": "coffee %s"
+  }
+}

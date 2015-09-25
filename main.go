@@ -7,6 +7,11 @@ import (
 )
 
 func main() {
+	err := LoadLanguages("./languages.json")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	config, err := NewConfig()
 	if err != nil {
 		log.Fatalln(err)
