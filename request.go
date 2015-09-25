@@ -12,6 +12,7 @@ type Request struct {
 	Content  string
 	Command  string
 	Image    string
+	Format   string
 }
 
 var FilenameRegexp = regexp.MustCompile(`\A([a-z\d\-\_]+)\.[a-z]{1,6}\z`)
@@ -45,6 +46,11 @@ func ParseRequest(r *http.Request) (*Request, error) {
 	}
 
 	req.Image = lang.Image
+	req.Format = lang.Format
+
+	if req.Format == "" {
+		req.Format = `text/plain; charset="UTF-8"`
+	}
 
 	if req.Command == "" {
 		req.Command = fmt.Sprintf(lang.Command, req.Filename)

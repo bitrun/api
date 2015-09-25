@@ -9,8 +9,9 @@ import (
 )
 
 type Language struct {
-	Image   string
-	Command string
+	Image   string `json:"image"`
+	Command string `json:"command"`
+	Format  string `json:"format"`
 }
 
 var Extensions map[string]Language

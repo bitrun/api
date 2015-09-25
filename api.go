@@ -58,7 +58,7 @@ func HandleRun(c *gin.Context) {
 	c.Writer.Header().Set("X-Run-ExitCode", strconv.Itoa(result.ExitCode))
 	c.Writer.Header().Set("X-Run-Duration", result.Duration)
 
-	c.String(200, result.Output)
+	c.Data(200, req.Format, result.Output)
 }
 
 func RunApi(config *Config, client *docker.Client) {

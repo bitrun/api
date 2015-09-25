@@ -21,7 +21,7 @@ type Run struct {
 
 type RunResult struct {
 	ExitCode int    `json:"exit_code"`
-	Output   string `json:"output"`
+	Output   []byte `json:"output"`
 	Duration string `json:"-"`
 }
 
@@ -119,7 +119,7 @@ func (run *Run) Start() (*RunResult, error) {
 		return nil, err
 	}
 
-	result.Output = buff.String()
+	result.Output = buff.Bytes()
 	return &result, nil
 }
 
