@@ -22,5 +22,9 @@
   ".coffee": {
     "image": "coffescript:0.12",
     "command": "coffee %s"
+  },
+  ".exs": {
+    "image": "trenpixster/elixir:latest",
+    "command": "elixir %s"
   }
 }
