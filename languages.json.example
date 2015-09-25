@@ -26,5 +26,9 @@
   ".exs": {
     "image": "trenpixster/elixir:latest",
     "command": "elixir %s"
+  },
+  ".sh": {
+    "image": "debian:jessie",
+    "command": "bash %s"
   }
 }
