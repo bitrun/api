@@ -8,7 +8,7 @@ import (
 	gin "github.com/gin-gonic/gin"
 )
 
-func errorReponse(err error, c *gin.Context) {
+func errorResponse(err error, c *gin.Context) {
 	result := map[string]string{"error": err.Error()}
 	c.JSON(400, result)
 }
@@ -24,19 +24,19 @@ func HandleRun(c *gin.Context) {
 
 	req, err := ParseRequest(c.Request)
 	if err != nil {
-		errorReponse(err, c)
+		errorResponse(err, c)
 		return
 	}
 
 	config, err := c.Get("config")
 	if err != nil {
-		errorReponse(err, c)
+		errorResponse(err, c)
 		return
 	}
 
 	client, err := c.Get("client")
 	if err != nil {
-		errorReponse(err, c)
+		errorResponse(err, c)
 		return
 	}
 
@@ -44,14 +44,14 @@ func HandleRun(c *gin.Context) {
 	defer run.Destroy()
 
 	if err := run.Setup(); err != nil {
-		errorReponse(err, c)
+		errorResponse(err, c)
 		return
 	}
 
 	// TODO: make timeout configurable
 	result, err := run.StartWithTimeout(time.Second * 10)
 	if err != nil {
-		errorReponse(err, c)
+		errorResponse(err, c)
 		return
 	}
 
