@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -14,8 +15,8 @@ func errorResponse(err error, c *gin.Context) {
 }
 
 func setCorsHeaders(c *gin.Context) {
-	c.Writer.Header().Add("Access-Control-Allow-Origin", "*")
-	c.Writer.Header().Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 }
 
 func HandleRun(c *gin.Context) {
@@ -28,15 +29,15 @@ func HandleRun(c *gin.Context) {
 		return
 	}
 
-	config, err := c.Get("config")
-	if err != nil {
-		errorResponse(err, c)
+	config, exists := c.Get("config")
+	if !exists {
+		errorResponse(fmt.Errorf("Cant get config"), c)
 		return
 	}
 
-	client, err := c.Get("client")
-	if err != nil {
-		errorResponse(err, c)
+	client, exists := c.Get("client")
+	if !exists {
+		errorResponse(fmt.Errorf("Cant get client"), c)
 		return
 	}
 
@@ -55,8 +56,8 @@ func HandleRun(c *gin.Context) {
 		return
 	}
 
-	c.Writer.Header().Set("X-Run-ExitCode", strconv.Itoa(result.ExitCode))
-	c.Writer.Header().Set("X-Run-Duration", result.Duration)
+	c.Header("X-Run-ExitCode", strconv.Itoa(result.ExitCode))
+	c.Header("X-Run-Duration", result.Duration)
 
 	c.Data(200, req.Format, result.Output)
 }
