@@ -44,5 +44,14 @@ func LoadLanguages(file string) error {
 	}
 
 	err = json.Unmarshal(data, &Extensions)
+
+	for k, lang := range Extensions {
+		if lang.Format == "" {
+			lang.Format = "text/plain"
+		}
+
+		Extensions[k] = lang
+	}
+
 	return err
 }
