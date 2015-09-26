@@ -17,6 +17,7 @@ func errorResponse(err error, c *gin.Context) {
 func setCorsHeaders(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	c.Header("Access-Control-Expose-Headers", "Content-Length,Content-Type,X-Run-ExitCode,X-Run-Duration")
 }
 
 func HandleRun(c *gin.Context) {
