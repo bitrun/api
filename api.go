@@ -62,6 +62,10 @@ func HandleRun(c *gin.Context) {
 	c.Data(200, req.Format, result.Output)
 }
 
+func HandleConfig(c *gin.Context) {
+	c.JSON(200, Extensions)
+}
+
 func RunApi(config *Config, client *docker.Client) {
 	router := gin.Default()
 	router.Use(func(c *gin.Context) {
@@ -69,6 +73,7 @@ func RunApi(config *Config, client *docker.Client) {
 		c.Set("client", client)
 	})
 
+	router.GET("/config", HandleConfig)
 	router.POST("/run", HandleRun)
 	router.Run("127.0.0.1:5000")
 }
