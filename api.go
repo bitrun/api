@@ -74,10 +74,10 @@ func RunApi(config *Config, client *docker.Client) {
 		c.Set("client", client)
 	})
 
-	router.Group("/api/v1/")
+	v1 := router.Group("/api/v1/")
 	{
-		router.GET("/config", HandleConfig)
-		router.POST("/run", HandleRun)
+		v1.GET("/config", HandleConfig)
+		v1.POST("/run", HandleRun)
 	}
 
 	router.Run("127.0.0.1:5000")
