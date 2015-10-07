@@ -21,19 +21,21 @@ Parameters:
 
 Example:
 
-```
-curl -i -X POST "https://bit.run/run" -d "filename=test.rb&content=puts 'Hello World'"
+```bash
+curl \
+  -i \
+  -X POST "https://bit.run/api/v1/run" \
+  -d "filename=test.rb&content=puts 'Hello World'"
 ```
 
 Output:
 
 ```
 HTTP/1.1 200 OK
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain
 Content-Length: 13
-Connection: keep-alive
-X-Duration: 216.185471ms
-X-Exit-Code: 0
+X-Run-Duration: 261.752379ms
+X-Run-Exitcode: 0
 
 Hello World
 ```
@@ -41,8 +43,47 @@ Hello World
 If request is successful, API will respond with plaintext of the executed command.
 Extra meta data will be included in the headers:
 
-- `X-Duration` - how long it took to process the request (not to run the code)
-- `X-Exit-Code` - exit code of executed command
+- `X-Run-Duration` - how long it took to process the request (not to run the code)
+- `X-Run-Exitcode` - exit code of executed command
+
+Each run is limited by 10 seconds. If your code runs longer than 10s API will
+respond with 400 and provide error message:
+
+```json
+{
+  "error": "Operation timed out after 10s"
+}
+```
+
+### Supported languages
+
+To check which languages are currently supported, make a call:
+
+```
+GET https;//bit.run/api/v1/config
+```
+
+Response will include supported languages along with commands used to run scripts:
+
+```json
+{
+  ".rb": {
+    "image": "ruby:2.2",
+    "command": "ruby %s",
+    "format": "text/plain"
+  },
+  ".py": {
+    "image": "python:2.7",
+    "command": "python %s",
+    "format": "text/plain"
+  },
+  ".php": {
+    "image": "php:5.6",
+    "command": "php %s",
+    "format": "text/plain"
+  }
+}
+```
 
 ## License
 
