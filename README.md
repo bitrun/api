@@ -55,6 +55,31 @@ respond with 400 and provide error message:
 }
 ```
 
+### Command override
+
+By default, bitrun will execute code snippet with a default command. For example,
+ruby snippet will use the following command: "ruby main.rb". To override the command,
+you can specify `command` parameter when making an API call:
+
+```bash
+curl \
+  -i \
+  -X POST "https://bit.run/api/v1/run" \
+  -d "filename=test.rb&content=puts 'Hello World'&command=ruby -v"
+```
+
+Response:
+
+```
+HTTP/1.1 200 OK
+Content-Type: text/plain
+Content-Length: 59
+X-Run-Duration: 126.436286ms
+X-Run-Exitcode: 0
+
+ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-linux]
+```
+
 ### Supported languages
 
 To check which languages are currently supported, make a call:
