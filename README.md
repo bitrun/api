@@ -11,7 +11,7 @@ requires Docker to run.
 To execute the code you must provide filename and content. 
 
 ```
-POST https://bit.run/run
+POST https://bit.run/api/v1/run
 ```
 
 Parameters:
@@ -60,7 +60,7 @@ respond with 400 and provide error message:
 To check which languages are currently supported, make a call:
 
 ```
-GET https;//bit.run/api/v1/config
+GET https://bit.run/api/v1/config
 ```
 
 Response will include supported languages along with commands used to run scripts:
