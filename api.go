@@ -57,6 +57,7 @@ func HandleRun(c *gin.Context) {
 		return
 	}
 
+	c.Header("X-Run-Command", req.Command)
 	c.Header("X-Run-ExitCode", strconv.Itoa(result.ExitCode))
 	c.Header("X-Run-Duration", result.Duration)
 
