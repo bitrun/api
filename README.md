@@ -34,6 +34,7 @@ Output:
 HTTP/1.1 200 OK
 Content-Type: text/plain
 Content-Length: 13
+X-Run-Command: ruby test.rb
 X-Run-Duration: 261.752379ms
 X-Run-Exitcode: 0
 
@@ -43,6 +44,7 @@ Hello World
 If request is successful, API will respond with plaintext of the executed command.
 Extra meta data will be included in the headers:
 
+- `X-Run-Command`  - full command that was executed
 - `X-Run-Duration` - how long it took to process the request (not to run the code)
 - `X-Run-Exitcode` - exit code of executed command
 
@@ -74,6 +76,7 @@ Response:
 HTTP/1.1 200 OK
 Content-Type: text/plain
 Content-Length: 59
+X-Run-Command: ruby test.rb
 X-Run-Duration: 126.436286ms
 X-Run-Exitcode: 0
 
