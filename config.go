@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 )
 
 type Config struct {
-	DockerHost string
-	SharedPath string
+	DockerHost  string
+	SharedPath  string
+	RunDuration time.Duration
 }
 
 func NewConfig() (*Config, error) {
@@ -25,6 +27,7 @@ func NewConfig() (*Config, error) {
 	}
 
 	cfg.SharedPath = expandPath(cfg.SharedPath)
+	cfg.RunDuration = time.Second * 10
 
 	return &cfg, nil
 }

@@ -13,6 +13,7 @@ import (
 type Run struct {
 	Id         string
 	VolumePath string
+	Config     *Config
 	Container  *docker.Container
 	Client     *docker.Client
 	Request    *Request

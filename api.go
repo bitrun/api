@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"strconv"
-	"time"
 
 	docker "github.com/fsouza/go-dockerclient"
 	gin "github.com/gin-gonic/gin"
@@ -50,8 +49,7 @@ func HandleRun(c *gin.Context) {
 		return
 	}
 
-	// TODO: make timeout configurable
-	result, err := run.StartWithTimeout(time.Second * 10)
+	result, err := run.StartWithTimeout(run.Config.RunDuration)
 	if err != nil {
 		errorResponse(err, c)
 		return
