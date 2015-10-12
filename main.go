@@ -9,6 +9,8 @@ import (
 const VERSION = "0.1.0"
 
 func main() {
+	log.Printf("bitrun api v%s\n", VERSION)
+
 	err := LoadLanguages("./languages.json")
 	if err != nil {
 		log.Fatalln(err)
