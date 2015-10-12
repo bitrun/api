@@ -6,6 +6,8 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 )
 
+const VERSION = "0.1.0"
+
 func main() {
 	err := LoadLanguages("./languages.json")
 	if err != nil {
