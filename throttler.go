@@ -46,3 +46,12 @@ func (t *Throttler) Remove(ip string) {
 		t.Clients[ip] = 0
 	}
 }
+
+func (t *Throttler) Flush() {
+	t.Lock()
+	defer t.Unlock()
+
+	for k := range t.Clients {
+		delete(t.Clients, k)
+	}
+}
