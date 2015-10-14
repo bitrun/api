@@ -3,32 +3,43 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 type Throttler struct {
-	Quota   int
-	Clients map[string]int
+	Concurrency int
+	Quota       int
+	Clients     map[string]int
+	Requests    map[string]int
 	*sync.Mutex
 }
 
-func NewThrottler(quota int) *Throttler {
+func NewThrottler(concurrency int, quota int) *Throttler {
 	return &Throttler{
-		Quota:   quota,
-		Clients: make(map[string]int),
-		Mutex:   &sync.Mutex{},
+		Concurrency: concurrency,
+		Quota:       quota,
+		Clients:     make(map[string]int),
+		Requests:    make(map[string]int),
+		Mutex:       &sync.Mutex{},
 	}
+}
+
+func (t *Throttler) StartPeriodicFlush() {
+	go func() {
+		for {
+			t.Flush()
+			time.Sleep(time.Second * 5)
+		}
+	}()
 }
 
 func (t *Throttler) Add(ip string) error {
 	t.Lock()
 	defer t.Unlock()
 
-	// Bypass all requests if quota is not set
-	if t.Quota < 0 {
-		return nil
-	}
+	t.Requests[ip]++
 
-	if t.Clients[ip] >= t.Quota {
+	if t.Requests[ip] > t.Quota || t.Clients[ip] >= t.Concurrency {
 		return fmt.Errorf("Too many requests")
 	}
 
@@ -53,5 +64,9 @@ func (t *Throttler) Flush() {
 
 	for k := range t.Clients {
 		delete(t.Clients, k)
+	}
+
+	for k := range t.Requests {
+		delete(t.Requests, k)
 	}
 }

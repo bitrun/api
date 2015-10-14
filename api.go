@@ -83,7 +83,9 @@ func throttleMiddleware(throttler *Throttler) gin.HandlerFunc {
 }
 
 func RunApi(config *Config, client *docker.Client) {
-	throttler := NewThrottler(config.ThrottleQuota)
+	throttler := NewThrottler(config.ThrottleConcurrency, config.ThrottleQuota)
+	throttler.StartPeriodicFlush()
+
 	router := gin.Default()
 
 	v1 := router.Group("/api/v1/")
