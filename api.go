@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	docker "github.com/fsouza/go-dockerclient"
 	gin "github.com/gin-gonic/gin"
@@ -66,15 +67,34 @@ func HandleConfig(c *gin.Context) {
 	c.JSON(200, Extensions)
 }
 
+func throttleMiddleware(throttler *Throttler) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ip := strings.Split(c.Request.RemoteAddr, ":")[0]
+
+		if err := throttler.Add(ip); err != nil {
+			errorResponse(err, c)
+			c.Abort()
+			return
+		}
+
+		c.Next()
+		throttler.Remove(ip)
+	}
+}
+
 func RunApi(config *Config, client *docker.Client) {
+	throttler := NewThrottler(config.ThrottleQuota)
 	router := gin.Default()
-	router.Use(func(c *gin.Context) {
-		c.Set("config", config)
-		c.Set("client", client)
-	})
 
 	v1 := router.Group("/api/v1/")
 	{
+		v1.Use(throttleMiddleware(throttler))
+
+		v1.Use(func(c *gin.Context) {
+			c.Set("config", config)
+			c.Set("client", client)
+		})
+
 		v1.GET("/config", HandleConfig)
 		v1.POST("/run", HandleRun)
 	}

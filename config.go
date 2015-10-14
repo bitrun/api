@@ -7,9 +7,10 @@ import (
 )
 
 type Config struct {
-	DockerHost  string
-	SharedPath  string
-	RunDuration time.Duration
+	DockerHost    string
+	SharedPath    string
+	RunDuration   time.Duration
+	ThrottleQuota int
 }
 
 func NewConfig() (*Config, error) {
@@ -28,6 +29,7 @@ func NewConfig() (*Config, error) {
 
 	cfg.SharedPath = expandPath(cfg.SharedPath)
 	cfg.RunDuration = time.Second * 10
+	cfg.ThrottleQuota = 1
 
 	return &cfg, nil
 }

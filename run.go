@@ -36,6 +36,7 @@ func NewRun(config *Config, client *docker.Client, req *Request) *Run {
 
 	return &Run{
 		Id:         id,
+		Config:     config,
 		Client:     client,
 		VolumePath: fmt.Sprintf("%s/%s", config.SharedPath, id),
 		Request:    req,
