@@ -34,5 +34,9 @@
   ".rs": {
     "image":"jimmycuadra/rust",
     "command": "rustc -o main %s && ./main"
+  },
+  ".c": {
+    "image": "gcc:latest",
+    "command": "cc -o main %s && ./main"
   }
 }
