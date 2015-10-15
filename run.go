@@ -73,7 +73,7 @@ func (run *Run) Setup() error {
 			AttachStdin:     false,
 			OpenStdin:       false,
 			Tty:             true,
-			NetworkDisabled: true,
+			NetworkDisabled: run.Config.NetworkDisabled,
 			WorkingDir:      "/code",
 			Cmd:             []string{"bash", "-c", run.Request.Command},
 		},

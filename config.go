@@ -12,6 +12,7 @@ type Config struct {
 	RunDuration         time.Duration
 	ThrottleQuota       int
 	ThrottleConcurrency int
+	NetworkDisabled     bool
 }
 
 func NewConfig() (*Config, error) {
@@ -32,6 +33,7 @@ func NewConfig() (*Config, error) {
 	cfg.RunDuration = time.Second * 10
 	cfg.ThrottleQuota = 5
 	cfg.ThrottleConcurrency = 1
+	cfg.NetworkDisabled = false
 
 	return &cfg, nil
 }
