@@ -48,12 +48,10 @@ func ParseRequest(r *http.Request) (*Request, error) {
 
 	req.Format = lang.Format
 
-	// Override default image
 	if req.Image == "" {
 		req.Image = lang.Image
 	}
 
-	// Override default command
 	if req.Command == "" {
 		req.Command = fmt.Sprintf(lang.Command, req.Filename)
 	}
