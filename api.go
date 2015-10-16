@@ -14,16 +14,7 @@ func errorResponse(err error, c *gin.Context) {
 	c.JSON(400, result)
 }
 
-func setCorsHeaders(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-	c.Header("Access-Control-Expose-Headers", "*")
-}
-
 func HandleRun(c *gin.Context) {
-	// We only need CORS for this endpoint
-	setCorsHeaders(c)
-
 	req, err := ParseRequest(c.Request)
 	if err != nil {
 		errorResponse(err, c)
@@ -82,6 +73,14 @@ func throttleMiddleware(throttler *Throttler) gin.HandlerFunc {
 	}
 }
 
+func corsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Expose-Headers", "*")
+	}
+}
+
 func RunApi(config *Config, client *docker.Client) {
 	throttler := NewThrottler(config.ThrottleConcurrency, config.ThrottleQuota)
 	throttler.StartPeriodicFlush()
@@ -90,6 +89,7 @@ func RunApi(config *Config, client *docker.Client) {
 
 	v1 := router.Group("/api/v1/")
 	{
+		v1.Use(corsMiddleware())
 		v1.Use(throttleMiddleware(throttler))
 
 		v1.Use(func(c *gin.Context) {
