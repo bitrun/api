@@ -26,6 +26,7 @@ func ParseRequest(r *http.Request) (*Request, error) {
 		Filename: normalizeString(r.FormValue("filename")),
 		Command:  normalizeString(r.FormValue("command")),
 		Content:  r.FormValue("content"),
+		Image:    r.FormValue("image"),
 	}
 
 	if req.Filename == "" {
@@ -45,9 +46,14 @@ func ParseRequest(r *http.Request) (*Request, error) {
 		return nil, err
 	}
 
-	req.Image = lang.Image
 	req.Format = lang.Format
 
+	// Override default image
+	if req.Image == "" {
+		req.Image = lang.Image
+	}
+
+	// Override default command
 	if req.Command == "" {
 		req.Command = fmt.Sprintf(lang.Command, req.Filename)
 	}
