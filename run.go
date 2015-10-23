@@ -62,7 +62,7 @@ func (run *Run) Setup() error {
 				run.VolumePath + ":/tmp",
 			},
 			ReadonlyRootfs: true,
-			Memory:         67108864, // 64 mb
+			Memory:         run.Config.MemoryLimit,
 			MemorySwap:     0,
 		},
 		Config: &docker.Config{

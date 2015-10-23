@@ -13,6 +13,7 @@ type Config struct {
 	ThrottleQuota       int
 	ThrottleConcurrency int
 	NetworkDisabled     bool
+	MemoryLimit         int64
 }
 
 func NewConfig() (*Config, error) {
@@ -34,6 +35,7 @@ func NewConfig() (*Config, error) {
 	cfg.ThrottleQuota = 5
 	cfg.ThrottleConcurrency = 1
 	cfg.NetworkDisabled = false
+	cfg.MemoryLimit = 67108864
 
 	return &cfg, nil
 }
