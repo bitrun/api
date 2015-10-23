@@ -34,7 +34,7 @@ func NewConfig() (*Config, error) {
 	cfg.RunDuration = time.Second * 10
 	cfg.ThrottleQuota = 5
 	cfg.ThrottleConcurrency = 1
-	cfg.NetworkDisabled = false
+	cfg.NetworkDisabled = true
 	cfg.MemoryLimit = 67108864
 
 	return &cfg, nil
