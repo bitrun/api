@@ -20,7 +20,6 @@ func performRun(run *Run) (*RunResult, error) {
 	if pools[run.Request.Image] != nil {
 		container, err := pools[run.Request.Image].Get()
 
-		log.Println("fetched warmed up container:", container, err)
 		if err == nil {
 			result, err := run.StartExec(container)
 			return result, err
