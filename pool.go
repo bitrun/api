@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"sync"
 	"time"
 
@@ -14,7 +15,7 @@ var pools map[string]*Pool
 type Pool struct {
 	Config     *Config
 	Client     *docker.Client
-	Containers map[string]int
+	Containers map[string]*docker.Container
 	Image      string
 	Capacity   int
 	sync.Mutex
@@ -46,7 +47,7 @@ func NewPool(config *Config, client *docker.Client, image string, capacity int) 
 	pool := &Pool{
 		Config:     config,
 		Client:     client,
-		Containers: map[string]int{},
+		Containers: map[string]*docker.Container{},
 		Image:      image,
 		Capacity:   capacity,
 	}
@@ -64,8 +65,13 @@ func (pool *Pool) Load() error {
 	}
 
 	for _, c := range containers {
-		if c.Image == pool.Image {
-			pool.Containers[c.ID] = 0
+		if c.Image == pool.Image && c.Labels["id"] != "" {
+			pool.Containers[c.ID] = &docker.Container{
+				ID: c.ID,
+				Config: &docker.Config{
+					Labels: c.Labels,
+				},
+			}
 		}
 	}
 
@@ -75,6 +81,10 @@ func (pool *Pool) Load() error {
 func (pool *Pool) Add() error {
 	id, _ := randomHex(20)
 	volumePath := fmt.Sprintf("%s/%s", pool.Config.SharedPath, id)
+
+	if err := os.Mkdir(volumePath, 0777); err != nil {
+		return err
+	}
 
 	opts := docker.CreateContainerOptions{
 		Name: fmt.Sprintf("reserved-%v", time.Now().UnixNano()),
@@ -90,6 +100,7 @@ func (pool *Pool) Add() error {
 		Config: &docker.Config{
 			Hostname:        "bitrun",
 			Image:           pool.Image,
+			Labels:          map[string]string{"id": id},
 			AttachStdout:    true,
 			AttachStderr:    true,
 			AttachStdin:     false,
@@ -114,7 +125,10 @@ func (pool *Pool) Add() error {
 	pool.Lock()
 	defer pool.Unlock()
 
-	pool.Containers[container.ID] = 0
+	// We need this!
+	container.Config = opts.Config
+
+	pool.Containers[container.ID] = container
 	return nil
 }
 
@@ -122,7 +136,7 @@ func (pool *Pool) Fill() {
 	num := pool.Capacity - len(pool.Containers)
 
 	// Pool is full
-	if num == 0 {
+	if num <= 0 {
 		return
 	}
 
@@ -143,25 +157,23 @@ func (pool *Pool) Monitor() {
 	}
 }
 
-func (pool *Pool) Get() (string, error) {
+func (pool *Pool) Get() (*docker.Container, error) {
 	pool.Lock()
 	defer pool.Unlock()
 
-	id := ""
+	var container *docker.Container
 
-	for k, v := range pool.Containers {
-		if v == 0 {
-			id = k
-			break
-		}
+	for _, v := range pool.Containers {
+		container = v
+		break
 	}
 
-	if id != "" {
-		delete(pool.Containers, id)
-		return id, nil
+	if container != nil {
+		delete(pool.Containers, container.ID)
+		return container, nil
 	}
 
-	return "", fmt.Errorf("no contaienrs are available")
+	return nil, fmt.Errorf("no contaienrs are available")
 }
 
 func RunPool(config *Config, client *docker.Client) {
