@@ -49,5 +49,11 @@ func NewConfigFromFile(path string) (*Config, error) {
 	config := Config{}
 
 	err = json.Unmarshal(data, &config)
+
+	if err == nil {
+		config.SharedPath = expandPath(config.SharedPath)
+		config.RunDuration = config.RunDuration * time.Second
+	}
+
 	return &config, err
 }
