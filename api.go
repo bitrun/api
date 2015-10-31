@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -12,6 +13,25 @@ import (
 func errorResponse(err error, c *gin.Context) {
 	result := map[string]string{"error": err.Error()}
 	c.JSON(400, result)
+}
+
+func performRun(run *Run) (*RunResult, error) {
+	// Try to get a warmed-up container for the run
+	if pools[run.Request.Image] != nil {
+		container, err := pools[run.Request.Image].Get()
+
+		log.Println("fetched warmed up container:", container, err)
+		if err == nil {
+			result, err := run.StartExec(container)
+			return result, err
+		}
+	}
+
+	if err := run.Setup(); err != nil {
+		return nil, err
+	}
+
+	return run.StartWithTimeout(run.Config.RunDuration)
 }
 
 func HandleRun(c *gin.Context) {
@@ -36,12 +56,7 @@ func HandleRun(c *gin.Context) {
 	run := NewRun(config.(*Config), client.(*docker.Client), req)
 	defer run.Destroy()
 
-	if err := run.Setup(); err != nil {
-		errorResponse(err, c)
-		return
-	}
-
-	result, err := run.StartWithTimeout(run.Config.RunDuration)
+	result, err := performRun(run)
 	if err != nil {
 		errorResponse(err, c)
 		return

@@ -1,33 +1,32 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
+	"io/ioutil"
 	"os"
 	"time"
 )
 
-type Config struct {
-	DockerHost          string
-	SharedPath          string
-	RunDuration         time.Duration
-	ThrottleQuota       int
-	ThrottleConcurrency int
-	NetworkDisabled     bool
-	MemoryLimit         int64
+type PoolConfig struct {
+	Image    string `json:"image"`
+	Capacity int    `json:"capacity"`
 }
 
-func NewConfig() (*Config, error) {
+type Config struct {
+	DockerHost          string        `json:"docker_host"`
+	SharedPath          string        `json:"shared_path"`
+	RunDuration         time.Duration `json:"run_duration"`
+	ThrottleQuota       int           `json:"throttle_quota"`
+	ThrottleConcurrency int           `json:"throttle_concurrency"`
+	NetworkDisabled     bool          `json:"network_disabled"`
+	MemoryLimit         int64         `json:"memory_limit"`
+	Pools               []PoolConfig  `json:"pools"`
+}
+
+func NewConfig() *Config {
 	cfg := Config{
 		DockerHost: os.Getenv("DOCKER_HOST"),
 		SharedPath: os.Getenv("SHARED_PATH"),
-	}
-
-	if cfg.DockerHost == "" {
-		return nil, fmt.Errorf("Please set DOCKER_HOST environment variable")
-	}
-
-	if cfg.SharedPath == "" {
-		return nil, fmt.Errorf("Please set SHARED_PATH environment variable")
 	}
 
 	cfg.SharedPath = expandPath(cfg.SharedPath)
@@ -36,6 +35,25 @@ func NewConfig() (*Config, error) {
 	cfg.ThrottleConcurrency = 1
 	cfg.NetworkDisabled = true
 	cfg.MemoryLimit = 67108864
+	cfg.Pools = []PoolConfig{}
 
-	return &cfg, nil
+	return &cfg
+}
+
+func NewConfigFromFile(path string) (*Config, error) {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	config := Config{}
+
+	err = json.Unmarshal(data, &config)
+
+	if err == nil {
+		config.SharedPath = expandPath(config.SharedPath)
+		config.RunDuration = config.RunDuration * time.Second
+	}
+
+	return &config, err
 }
