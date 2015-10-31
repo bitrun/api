@@ -165,6 +165,8 @@ func (pool *Pool) Get() (string, error) {
 }
 
 func RunPool(config *Config, client *docker.Client) {
+	pools = make(map[string]*Pool)
+
 	for _, cfg := range config.Pools {
 		log.Println("initializing pool for:", cfg.Image)
 
