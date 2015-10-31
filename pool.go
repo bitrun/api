@@ -9,6 +9,8 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 )
 
+var pools map[string]*Pool
+
 type Pool struct {
 	Config     *Config
 	Client     *docker.Client
@@ -163,4 +165,20 @@ func (pool *Pool) Get() (string, error) {
 }
 
 func RunPool(config *Config, client *docker.Client) {
+	for _, cfg := range config.Pools {
+		log.Println("initializing pool for:", cfg.Image)
+
+		pool, err := NewPool(config, client, cfg.Image, cfg.Capacity)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		err = pool.Load()
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		go pool.Monitor()
+		pools[cfg.Image] = pool
+	}
 }
