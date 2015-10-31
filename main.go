@@ -26,5 +26,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	go RunPool(config, client)
 	RunApi(config, client)
 }
