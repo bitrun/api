@@ -108,7 +108,7 @@ func (pool *Pool) Add() error {
 			Tty:             true,
 			NetworkDisabled: pool.Config.NetworkDisabled,
 			WorkingDir:      "/code",
-			Cmd:             []string{"sleep", "86400"},
+			Cmd:             []string{"sleep", "999999999"},
 		},
 	}
 
