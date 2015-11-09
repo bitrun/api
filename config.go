@@ -10,6 +10,7 @@ import (
 type PoolConfig struct {
 	Image    string `json:"image"`
 	Capacity int    `json:"capacity"`
+	Standby  int    `json:"standby"`
 }
 
 type Config struct {

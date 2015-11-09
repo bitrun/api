@@ -144,12 +144,16 @@ func (run *Run) StartWithTimeout(duration time.Duration) (*RunResult, error) {
 
 func (run *Run) Destroy() error {
 	if run.Container != nil {
-		run.Client.RemoveContainer(docker.RemoveContainerOptions{
-			ID:            run.Container.ID,
-			RemoveVolumes: true,
-			Force:         true,
-		})
+		destroyContainer(run.Client, run.Container.ID)
 	}
 
 	return os.RemoveAll(run.VolumePath)
+}
+
+func destroyContainer(client *docker.Client, id string) error {
+	return client.RemoveContainer(docker.RemoveContainerOptions{
+		ID:            id,
+		RemoveVolumes: true,
+		Force:         true,
+	})
 }

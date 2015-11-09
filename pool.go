@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -18,6 +19,7 @@ type Pool struct {
 	Containers map[string]*docker.Container
 	Image      string
 	Capacity   int
+	Standby    int
 	sync.Mutex
 }
 
@@ -38,10 +40,14 @@ func findImage(client *docker.Client, image string) (*docker.APIImages, error) {
 	return nil, fmt.Errorf("invalid image:", image)
 }
 
-func NewPool(config *Config, client *docker.Client, image string, capacity int) (*Pool, error) {
+func NewPool(config *Config, client *docker.Client, image string, capacity int, standby int) (*Pool, error) {
 	_, err := findImage(client, image)
 	if err != nil {
 		return nil, err
+	}
+
+	if standby <= 60 {
+		standby = 86400
 	}
 
 	pool := &Pool{
@@ -50,6 +56,7 @@ func NewPool(config *Config, client *docker.Client, image string, capacity int) 
 		Containers: map[string]*docker.Container{},
 		Image:      image,
 		Capacity:   capacity,
+		Standby:    standby,
 	}
 
 	return pool, nil
@@ -112,7 +119,7 @@ func (pool *Pool) Add() error {
 			Tty:             true,
 			NetworkDisabled: pool.Config.NetworkDisabled,
 			WorkingDir:      "/code",
-			Cmd:             []string{"sleep", "999999999"},
+			Cmd:             []string{"sleep", strconv.Itoa(pool.Standby)},
 		},
 	}
 
@@ -144,7 +151,7 @@ func (pool *Pool) Fill() {
 		return
 	}
 
-	log.Printf("adding %v containers to %v pool\n", num, pool.Image)
+	log.Printf("adding %v containers to %v pool, standby: %vs\n", num, pool.Image, pool.Standby)
 
 	for i := 0; i < num; i++ {
 		err := pool.Add()
@@ -166,6 +173,7 @@ func (pool *Pool) Remove(id string) {
 	defer pool.Unlock()
 
 	if pool.Containers[id] != nil {
+		go destroyContainer(pool.Client, id)
 		delete(pool.Containers, id)
 	}
 }
@@ -205,7 +213,7 @@ func RunPool(config *Config, client *docker.Client) {
 				continue
 			}
 
-			if event.Status == "destroy" {
+			if event.Status == "die" {
 				for _, pool := range pools {
 					if pool.Exists(event.ID) {
 						log.Println("pool's container got destroyed:", event.ID)
@@ -219,7 +227,7 @@ func RunPool(config *Config, client *docker.Client) {
 	for _, cfg := range config.Pools {
 		log.Println("initializing pool for:", cfg.Image)
 
-		pool, err := NewPool(config, client, cfg.Image, cfg.Capacity)
+		pool, err := NewPool(config, client, cfg.Image, cfg.Capacity, cfg.Standby)
 		if err != nil {
 			log.Fatalln(err)
 		}
