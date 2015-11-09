@@ -55,6 +55,10 @@ func NewPool(config *Config, client *docker.Client, image string, capacity int) 
 	return pool, nil
 }
 
+func (pool *Pool) Exists(id string) bool {
+	return pool.Containers[id] != nil
+}
+
 func (pool *Pool) Load() error {
 	pool.Lock()
 	defer pool.Unlock()
@@ -157,6 +161,15 @@ func (pool *Pool) Monitor() {
 	}
 }
 
+func (pool *Pool) Remove(id string) {
+	pool.Lock()
+	defer pool.Unlock()
+
+	if pool.Containers[id] != nil {
+		delete(pool.Containers, id)
+	}
+}
+
 func (pool *Pool) Get() (*docker.Container, error) {
 	pool.Lock()
 	defer pool.Unlock()
@@ -177,7 +190,31 @@ func (pool *Pool) Get() (*docker.Container, error) {
 }
 
 func RunPool(config *Config, client *docker.Client) {
+	chEvents := make(chan *docker.APIEvents)
 	pools = make(map[string]*Pool)
+
+	// Setup docker event listener
+	if err := client.AddEventListener(chEvents); err != nil {
+		log.Fatalln(err)
+	}
+
+	go func() {
+		for {
+			event := <-chEvents
+			if event == nil {
+				continue
+			}
+
+			if event.Status == "destroy" {
+				for _, pool := range pools {
+					if pool.Exists(event.ID) {
+						log.Println("pool's container got destroyed:", event.ID)
+						pool.Remove(event.ID)
+					}
+				}
+			}
+		}
+	}()
 
 	for _, cfg := range config.Pools {
 		log.Println("initializing pool for:", cfg.Image)
