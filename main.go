@@ -32,6 +32,32 @@ func getConfig() *Config {
 	return NewConfig()
 }
 
+func checkImages(client *docker.Client) error {
+	images, err := client.ListImages(docker.ListImagesOptions{})
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	imagesWithTags := map[string]bool{}
+
+	for _, image := range images {
+		for _, tag := range image.RepoTags {
+			imagesWithTags[tag] = true
+		}
+	}
+
+	fmt.Println("checking images...")
+	for _, lang := range Extensions {
+		if imagesWithTags[lang.Image] == true {
+			log.Printf("image %s exists", lang.Image)
+		} else {
+			return fmt.Errorf("image %s does not exist", lang.Image)
+		}
+	}
+
+	return nil
+}
+
 func main() {
 	log.Printf("bitrun api v%s\n", VERSION)
 
@@ -43,6 +69,11 @@ func main() {
 	config := getConfig()
 
 	client, err := docker.NewClient(config.DockerHost)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = checkImages(client)
 	if err != nil {
 		log.Fatalln(err)
 	}
