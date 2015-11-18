@@ -114,6 +114,7 @@ func RunApi(config *Config, client *docker.Client) {
 	throttler := NewThrottler(config.ThrottleConcurrency, config.ThrottleQuota)
 	throttler.StartPeriodicFlush()
 
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	v1 := router.Group("/api/v1/")
