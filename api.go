@@ -71,6 +71,24 @@ func HandleConfig(c *gin.Context) {
 	c.JSON(200, Extensions)
 }
 
+func authMiddleware(config *Config) gin.HandlerFunc {
+	if config.ApiToken == "" {
+		return nil
+	}
+
+	return func(c *gin.Context) {
+		token := c.Request.FormValue("api_token")
+
+		if token != config.ApiToken {
+			errorResponse(fmt.Errorf("Api token is invalid"), c)
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
+
 func throttleMiddleware(throttler *Throttler) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ip := strings.Split(c.Request.RemoteAddr, ":")[0]
@@ -102,6 +120,7 @@ func RunApi(config *Config, client *docker.Client) {
 
 	v1 := router.Group("/api/v1/")
 	{
+		v1.Use(authMiddleware(config))
 		v1.Use(corsMiddleware())
 		v1.Use(throttleMiddleware(throttler))
 

@@ -22,6 +22,7 @@ type Config struct {
 	NetworkDisabled     bool          `json:"network_disabled"`
 	MemoryLimit         int64         `json:"memory_limit"`
 	Pools               []PoolConfig  `json:"pools"`
+	ApiToken            string        `json:"api_token"`
 }
 
 func NewConfig() *Config {
