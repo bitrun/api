@@ -72,17 +72,15 @@ func HandleConfig(c *gin.Context) {
 }
 
 func authMiddleware(config *Config) gin.HandlerFunc {
-	if config.ApiToken == "" {
-		return nil
-	}
-
 	return func(c *gin.Context) {
-		token := c.Request.FormValue("api_token")
+		if config.ApiToken != "" {
+			token := c.Request.FormValue("api_token")
 
-		if token != config.ApiToken {
-			errorResponse(fmt.Errorf("Api token is invalid"), c)
-			c.Abort()
-			return
+			if token != config.ApiToken {
+				errorResponse(fmt.Errorf("Api token is invalid"), c)
+				c.Abort()
+				return
+			}
 		}
 
 		c.Next()
