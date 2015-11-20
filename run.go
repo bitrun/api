@@ -55,6 +55,11 @@ func (run *Run) Setup() error {
 		return err
 	}
 
+	memLimit := run.Request.MemoryLimit
+	if memLimit <= 1024 || memLimit > run.Config.MemoryLimit {
+		memLimit = run.Config.MemoryLimit
+	}
+
 	opts := docker.CreateContainerOptions{
 		HostConfig: &docker.HostConfig{
 			Binds: []string{
