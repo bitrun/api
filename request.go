@@ -18,7 +18,7 @@ type Request struct {
 	NamespaceId string
 }
 
-var FilenameRegexp = regexp.MustCompile(`\A([a-z\d\-\_]+)\.[a-z]{1,6}\z`)
+var FilenameRegexp = regexp.MustCompile(`\A([a-z\d\-\_]+)\.[a-z]{1,12}\z`)
 
 func normalizeString(val string) string {
 	return strings.ToLower(strings.TrimSpace(val))
