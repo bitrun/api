@@ -23,6 +23,7 @@ type Config struct {
 	MemoryLimit         int64         `json:"memory_limit"`
 	Pools               []PoolConfig  `json:"pools"`
 	ApiToken            string        `json:"api_token"`
+	FetchImages         bool          `json:"fetch_images"`
 }
 
 func NewConfig() *Config {
@@ -38,6 +39,7 @@ func NewConfig() *Config {
 	cfg.NetworkDisabled = true
 	cfg.MemoryLimit = 67108864
 	cfg.Pools = []PoolConfig{}
+	cfg.FetchImages = false
 
 	return &cfg
 }

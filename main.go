@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	docker "github.com/fsouza/go-dockerclient"
 )
@@ -32,7 +33,27 @@ func getConfig() *Config {
 	return NewConfig()
 }
 
-func checkImages(client *docker.Client) error {
+func pullImage(name string, client *docker.Client) error {
+	chunks := strings.Split(name, ":")
+
+	imgName := chunks[0]
+	imgTag := "latest"
+
+	if len(chunks) == 2 {
+		imgTag = chunks[1]
+	}
+
+	auth := docker.AuthConfiguration{}
+	opts := docker.PullImageOptions{
+		Repository:   imgName,
+		Tag:          imgTag,
+		OutputStream: os.Stdout,
+	}
+
+	return client.PullImage(opts, auth)
+}
+
+func checkImages(client *docker.Client, config *Config) error {
 	images, err := client.ListImages(docker.ListImagesOptions{})
 	if err != nil {
 		log.Fatalln(err)
@@ -51,7 +72,15 @@ func checkImages(client *docker.Client) error {
 		if imagesWithTags[lang.Image] == true {
 			log.Printf("image %s exists", lang.Image)
 		} else {
-			return fmt.Errorf("image %s does not exist", lang.Image)
+			if config.FetchImages {
+				log.Println("pulling", lang.Image, "image...")
+				err := pullImage(lang.Image, client)
+				if err != nil {
+					log.Fatalln(err)
+				}
+			} else {
+				return fmt.Errorf("image %s does not exist", lang.Image)
+			}
 		}
 	}
 
@@ -73,7 +102,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	err = checkImages(client)
+	err = checkImages(client, config)
 	if err != nil {
 		log.Fatalln(err)
 	}
