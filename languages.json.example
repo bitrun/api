@@ -1,6 +1,6 @@
 {
   ".rb": {
-    "image": "ruby:2.2",
+    "image": "bitrun/ruby:2.2",
     "command": "ruby %s"
   },
   ".py": {
@@ -8,7 +8,7 @@
     "command": "python %s"
   },
   ".js": {
-    "image": "node:0.12",
+    "image": "bitrun/node:4.1",
     "command": "node %s"
   },
   ".go": {
@@ -20,7 +20,7 @@
     "command": "php %s"
   },
   ".coffee": {
-    "image": "coffescript:0.12",
+    "image": "bitrun/node:4.1",
     "command": "coffee %s"
   },
   ".exs": {
@@ -38,5 +38,17 @@
   ".c": {
     "image": "gcc:latest",
     "command": "cc -o main %s && ./main"
+  },
+  ".lol": {
+    "image": "bitrun/lci:0.10",
+    "command": "lci ./%s"
+  },
+  ".arnie": {
+    "image": "sosedoff/arnoldc",
+   "command": "java -jar /arnoldc.jar %s && java main"
+  },
+  ".bf": {
+    "image": "sosedoff/brainfuck",
+    "command": "brainfuck %s"
   }
 }
