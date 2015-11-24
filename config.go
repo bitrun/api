@@ -24,6 +24,7 @@ type Config struct {
 	Pools               []PoolConfig  `json:"pools"`
 	ApiToken            string        `json:"api_token"`
 	FetchImages         bool          `json:"fetch_images"`
+	Namespaces          bool          `json:"namespaces"`
 }
 
 func NewConfig() *Config {
@@ -40,6 +41,7 @@ func NewConfig() *Config {
 	cfg.MemoryLimit = 67108864
 	cfg.Pools = []PoolConfig{}
 	cfg.FetchImages = false
+	cfg.Namespaces = false
 
 	return &cfg
 }
