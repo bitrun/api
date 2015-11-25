@@ -225,6 +225,10 @@ func RunPool(config *Config, client *docker.Client) {
 	}()
 
 	for _, cfg := range config.Pools {
+		if cfg.Capacity < 1 {
+			continue
+		}
+
 		log.Println("initializing pool for:", cfg.Image)
 
 		pool, err := NewPool(config, client, cfg.Image, cfg.Capacity, cfg.Standby)
