@@ -9,9 +9,9 @@ import (
 	gin "github.com/gin-gonic/gin"
 )
 
-func errorResponse(err error, c *gin.Context) {
+func errorResponse(status int, err error, c *gin.Context) {
 	result := map[string]string{"error": err.Error()}
-	c.JSON(400, result)
+	c.JSON(status, result)
 }
 
 func performRun(run *Run) (*RunResult, error) {
@@ -35,19 +35,19 @@ func performRun(run *Run) (*RunResult, error) {
 func HandleRun(c *gin.Context) {
 	req, err := ParseRequest(c.Request)
 	if err != nil {
-		errorResponse(err, c)
+		errorResponse(400, err, c)
 		return
 	}
 
 	config, exists := c.Get("config")
 	if !exists {
-		errorResponse(fmt.Errorf("Cant get config"), c)
+		errorResponse(400, fmt.Errorf("Cant get config"), c)
 		return
 	}
 
 	client, exists := c.Get("client")
 	if !exists {
-		errorResponse(fmt.Errorf("Cant get client"), c)
+		errorResponse(400, fmt.Errorf("Cant get client"), c)
 		return
 	}
 
@@ -56,7 +56,7 @@ func HandleRun(c *gin.Context) {
 
 	result, err := performRun(run)
 	if err != nil {
-		errorResponse(err, c)
+		errorResponse(400, err, c)
 		return
 	}
 
@@ -77,7 +77,7 @@ func authMiddleware(config *Config) gin.HandlerFunc {
 			token := c.Request.FormValue("api_token")
 
 			if token != config.ApiToken {
-				errorResponse(fmt.Errorf("Api token is invalid"), c)
+				errorResponse(400, fmt.Errorf("Api token is invalid"), c)
 				c.Abort()
 				return
 			}
@@ -92,7 +92,7 @@ func throttleMiddleware(throttler *Throttler) gin.HandlerFunc {
 		ip := strings.Split(c.Request.RemoteAddr, ":")[0]
 
 		if err := throttler.Add(ip); err != nil {
-			errorResponse(err, c)
+			errorResponse(429, err, c)
 			c.Abort()
 			return
 		}
