@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -11,6 +13,7 @@ import (
 type Request struct {
 	Filename    string
 	Content     string
+	CacheKey    string
 	Command     string
 	Image       string
 	Format      string
@@ -39,6 +42,12 @@ func parseInt(val string) int64 {
 	}
 
 	return int64(result)
+}
+
+func sha1Sum(input string) string {
+	h := sha1.New()
+	h.Write([]byte(input))
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 func ParseRequest(r *http.Request) (*Request, error) {
@@ -77,6 +86,9 @@ func ParseRequest(r *http.Request) (*Request, error) {
 	if req.Command == "" {
 		req.Command = fmt.Sprintf(lang.Command, req.Filename)
 	}
+
+	// Calculate request cache key based on content, command and image
+	req.CacheKey = sha1Sum(req.Content + req.Command + req.Image)
 
 	return &req, nil
 }
