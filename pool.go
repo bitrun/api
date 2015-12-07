@@ -3,8 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
-	"strconv"
+
 	"sync"
 	"time"
 
@@ -90,52 +89,17 @@ func (pool *Pool) Load() error {
 }
 
 func (pool *Pool) Add() error {
-	id, _ := randomHex(20)
-	volumePath := fmt.Sprintf("%s/%s", pool.Config.SharedPath, id)
-
-	if err := os.Mkdir(volumePath, 0777); err != nil {
-		return err
-	}
-
-	opts := docker.CreateContainerOptions{
-		Name: fmt.Sprintf("reserved-%v", time.Now().UnixNano()),
-		HostConfig: &docker.HostConfig{
-			Binds: []string{
-				volumePath + ":/code",
-				volumePath + ":/tmp",
-			},
-			ReadonlyRootfs: true,
-			Memory:         pool.Config.MemoryLimit,
-			MemorySwap:     0,
-		},
-		Config: &docker.Config{
-			Hostname:        "bitrun",
-			Image:           pool.Image,
-			Labels:          map[string]string{"id": id},
-			AttachStdout:    true,
-			AttachStderr:    true,
-			AttachStdin:     true,
-			NetworkDisabled: pool.Config.NetworkDisabled,
-			WorkingDir:      "/code",
-			Cmd:             []string{"sleep", strconv.Itoa(pool.Standby)},
-		},
-	}
-
-	container, err := pool.Client.CreateContainer(opts)
+	container, err := CreateContainer(pool.Client, pool.Config, pool.Image, pool.Standby)
 	if err != nil {
 		return err
 	}
 
-	err = pool.Client.StartContainer(container.ID, container.HostConfig)
-	if err != nil {
+	if err = pool.Client.StartContainer(container.ID, nil); err != nil {
 		return err
 	}
 
 	pool.Lock()
 	defer pool.Unlock()
-
-	// We need this!
-	container.Config = opts.Config
 
 	pool.Containers[container.ID] = container
 	return nil
