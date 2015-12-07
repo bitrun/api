@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"strings"
 	"time"
 
 	docker "github.com/fsouza/go-dockerclient"
@@ -23,7 +24,8 @@ func (run *Run) StartExec(container *docker.Container) (*RunResult, error) {
 	exec, err := run.Client.CreateExec(docker.CreateExecOptions{
 		AttachStdout: true,
 		AttachStderr: true,
-		Tty:          true,
+		AttachStdin:  true,
+		Tty:          false,
 		Cmd:          []string{"bash", "-c", run.Request.Command},
 		Container:    container.ID,
 	})
@@ -33,15 +35,17 @@ func (run *Run) StartExec(container *docker.Container) (*RunResult, error) {
 	}
 
 	buff := bytes.NewBuffer([]byte{})
+	stdin := strings.NewReader(run.Request.Input)
 
-	err = run.Client.StartExec(exec.ID, docker.StartExecOptions{
+	execOpts := docker.StartExecOptions{
 		Tty:          true,
+		InputStream:  stdin,
 		OutputStream: buff,
 		ErrorStream:  buff,
 		RawTerminal:  true,
-	})
+	}
 
-	if err != nil {
+	if err = run.Client.StartExec(exec.ID, execOpts); err != nil {
 		return nil, err
 	}
 

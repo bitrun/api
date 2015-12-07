@@ -15,6 +15,7 @@ type Request struct {
 	Content     string
 	CacheKey    string
 	Command     string
+	Input       string
 	Image       string
 	Format      string
 	MemoryLimit int64
@@ -55,6 +56,7 @@ func ParseRequest(r *http.Request) (*Request, error) {
 		Filename:    normalizeString(r.FormValue("filename")),
 		Command:     normalizeString(r.FormValue("command")),
 		Content:     r.FormValue("content"),
+		Input:       r.FormValue("input"),
 		Image:       r.FormValue("image"),
 		MemoryLimit: parseInt(r.FormValue("memory_limit")),
 		NamespaceId: normalizeString(r.FormValue("namespace")),
@@ -88,7 +90,7 @@ func ParseRequest(r *http.Request) (*Request, error) {
 	}
 
 	// Calculate request cache key based on content, command and image
-	req.CacheKey = sha1Sum(req.Content + req.Command + req.Image)
+	req.CacheKey = sha1Sum(req.Content + req.Input + req.Command + req.Image)
 
 	return &req, nil
 }
