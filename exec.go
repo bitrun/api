@@ -40,7 +40,7 @@ func (run *Run) StartExec(container *docker.Container) (*RunResult, error) {
 		InputStream:  stdin,
 		OutputStream: buff,
 		ErrorStream:  buff,
-		RawTerminal:  true,
+		RawTerminal:  false,
 	}
 
 	if err = run.Client.StartExec(exec.ID, execOpts); err != nil {
