@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -45,89 +44,29 @@ func NewRun(config *Config, client *docker.Client, req *Request) *Run {
 }
 
 func (run *Run) Setup() error {
-	fullPath := fmt.Sprintf("%s/%s", run.VolumePath, run.Request.Filename)
-
-	if err := os.Mkdir(run.VolumePath, 0777); err != nil {
+	container, err := CreateContainer(run.Client, run.Config, run.Request.Image, 60)
+	if err != nil {
 		return err
 	}
+
+	volumePath := fmt.Sprintf("%s/%s", run.Config.SharedPath, container.Config.Labels["id"])
+	fullPath := fmt.Sprintf("%s/%s", volumePath, run.Request.Filename)
 
 	if err := ioutil.WriteFile(fullPath, []byte(run.Request.Content), 0666); err != nil {
 		return err
 	}
 
-	memLimit := run.Request.MemoryLimit
-	if memLimit <= 1024 || memLimit > run.Config.MemoryLimit {
-		memLimit = run.Config.MemoryLimit
-	}
+	run.Container = container
 
-	opts := docker.CreateContainerOptions{
-		HostConfig: &docker.HostConfig{
-			Binds: []string{
-				run.VolumePath + ":/code",
-				run.VolumePath + ":/tmp",
-			},
-			ReadonlyRootfs: true,
-			Memory:         run.Config.MemoryLimit,
-			MemorySwap:     0,
-		},
-		Config: &docker.Config{
-			Hostname:        "bitrun",
-			Image:           run.Request.Image,
-			AttachStdout:    true,
-			AttachStderr:    true,
-			AttachStdin:     false,
-			OpenStdin:       false,
-			Tty:             true,
-			NetworkDisabled: run.Config.NetworkDisabled,
-			WorkingDir:      "/code",
-			Cmd:             []string{"bash", "-c", run.Request.Command},
-		},
-	}
-
-	container, err := run.Client.CreateContainer(opts)
-	if err != nil {
+	if err := run.Client.StartContainer(container.ID, nil); err != nil {
 		return err
 	}
 
-	run.Container = container
 	return nil
 }
 
 func (run *Run) Start() (*RunResult, error) {
-	ts := time.Now()
-
-	err := run.Client.StartContainer(run.Container.ID, run.Container.HostConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	result := RunResult{}
-
-	exitCode, err := run.Client.WaitContainer(run.Container.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	result.Duration = time.Now().Sub(ts).String()
-	result.ExitCode = exitCode
-
-	buff := bytes.NewBuffer([]byte{})
-
-	err = run.Client.Logs(docker.LogsOptions{
-		Container:    run.Container.ID,
-		Stdout:       true,
-		Stderr:       true,
-		OutputStream: buff,
-		ErrorStream:  buff,
-		RawTerminal:  true,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	result.Output = buff.Bytes()
-	return &result, nil
+	return run.StartExec(run.Container)
 }
 
 func (run *Run) StartWithTimeout(duration time.Duration) (*RunResult, error) {
