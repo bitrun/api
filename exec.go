@@ -25,7 +25,6 @@ func (run *Run) StartExec(container *docker.Container) (*RunResult, error) {
 		AttachStdout: true,
 		AttachStderr: true,
 		AttachStdin:  true,
-		Tty:          false,
 		Cmd:          []string{"bash", "-c", run.Request.Command},
 		Container:    container.ID,
 	})
@@ -38,7 +37,6 @@ func (run *Run) StartExec(container *docker.Container) (*RunResult, error) {
 	stdin := strings.NewReader(run.Request.Input)
 
 	execOpts := docker.StartExecOptions{
-		Tty:          true,
 		InputStream:  stdin,
 		OutputStream: buff,
 		ErrorStream:  buff,
@@ -50,6 +48,11 @@ func (run *Run) StartExec(container *docker.Container) (*RunResult, error) {
 	}
 
 	result := RunResult{}
+
+	execInfo, err := run.Client.InspectExec(exec.ID)
+	if err == nil {
+		result.ExitCode = execInfo.ExitCode
+	}
 
 	result.Duration = time.Now().Sub(ts).String()
 	result.Output = buff.Bytes()
