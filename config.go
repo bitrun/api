@@ -16,6 +16,7 @@ type PoolConfig struct {
 type Config struct {
 	Listen              string        `json:"listen"`
 	DockerHost          string        `json:"docker_host"`
+	LanguagesPath       string        `json:"languages_path"`
 	SharedPath          string        `json:"shared_path"`
 	RunDuration         time.Duration `json:"run_duration"`
 	ThrottleQuota       int           `json:"throttle_quota"`
@@ -44,6 +45,7 @@ func NewConfig() *Config {
 	cfg.Pools = []PoolConfig{}
 	cfg.FetchImages = false
 	cfg.Namespaces = false
+	cfg.LanguagesPath = "./languages.json"
 
 	return &cfg
 }

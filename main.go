@@ -30,6 +30,7 @@ func getConfig() *Config {
 
 	requireEnvVar("DOCKER_HOST")
 	requireEnvVar("SHARED_PATH")
+
 	return NewConfig()
 }
 
@@ -90,12 +91,12 @@ func checkImages(client *docker.Client, config *Config) error {
 func main() {
 	log.Printf("bitrun api v%s\n", VERSION)
 
-	err := LoadLanguages("./languages.json")
+	config := getConfig()
+
+	err := LoadLanguages(config.LanguagesPath)
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	config := getConfig()
 
 	client, err := docker.NewClient(config.DockerHost)
 	if err != nil {
