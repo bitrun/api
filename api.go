@@ -132,5 +132,6 @@ func RunApi(config *Config, client *docker.Client) {
 		v1.POST("/run", HandleRun)
 	}
 
-	router.Run("127.0.0.1:5000")
+	fmt.Println("Starting server on", config.Listen)
+	router.Run(config.Listen)
 }

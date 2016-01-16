@@ -14,6 +14,7 @@ type PoolConfig struct {
 }
 
 type Config struct {
+	Listen              string        `json:"listen"`
 	DockerHost          string        `json:"docker_host"`
 	SharedPath          string        `json:"shared_path"`
 	RunDuration         time.Duration `json:"run_duration"`
@@ -33,6 +34,7 @@ func NewConfig() *Config {
 		SharedPath: os.Getenv("SHARED_PATH"),
 	}
 
+	cfg.Listen = "127.0.0.1:5000"
 	cfg.SharedPath = expandPath(cfg.SharedPath)
 	cfg.RunDuration = time.Second * 10
 	cfg.ThrottleQuota = 5
@@ -59,6 +61,10 @@ func NewConfigFromFile(path string) (*Config, error) {
 	if err == nil {
 		config.SharedPath = expandPath(config.SharedPath)
 		config.RunDuration = config.RunDuration * time.Second
+
+		if config.Listen == "" {
+			config.Listen = "127.0.0.1:5000"
+		}
 	}
 
 	return &config, err
