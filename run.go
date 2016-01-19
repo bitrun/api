@@ -69,7 +69,8 @@ func (run *Run) Start() (*RunResult, error) {
 	return run.StartExec(run.Container)
 }
 
-func (run *Run) StartWithTimeout(duration time.Duration) (*RunResult, error) {
+func (run *Run) StartWithTimeout() (*RunResult, error) {
+	duration := run.Config.RunDuration
 	timeout := time.After(duration)
 	chDone := make(chan Done)
 

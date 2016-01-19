@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -20,16 +21,18 @@ func performRun(run *Run) (*RunResult, error) {
 		container, err := pools[run.Request.Image].Get()
 
 		if err == nil {
-			result, err := run.StartExec(container)
+			log.Println("got warmed-up container for image:", run.Request.Image, container.ID)
+			result, err := run.StartExecWithTimeout(container)
 			return result, err
 		}
 	}
 
+	log.Println("setting up container for image:", run.Request.Image)
 	if err := run.Setup(); err != nil {
 		return nil, err
 	}
 
-	return run.StartWithTimeout(run.Config.RunDuration)
+	return run.StartWithTimeout()
 }
 
 func HandleRun(c *gin.Context) {
@@ -132,6 +135,6 @@ func RunApi(config *Config, client *docker.Client) {
 		v1.POST("/run", HandleRun)
 	}
 
-	fmt.Println("Starting server on", config.Listen)
+	fmt.Println("starting server on", config.Listen)
 	router.Run(config.Listen)
 }

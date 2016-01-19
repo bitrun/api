@@ -59,3 +59,21 @@ func (run *Run) StartExec(container *docker.Container) (*RunResult, error) {
 
 	return &result, nil
 }
+
+func (run *Run) StartExecWithTimeout(container *docker.Container) (*RunResult, error) {
+	duration := run.Config.RunDuration
+	timeout := time.After(duration)
+	chDone := make(chan Done)
+
+	go func() {
+		res, err := run.StartExec(container)
+		chDone <- Done{res, err}
+	}()
+
+	select {
+	case done := <-chDone:
+		return done.RunResult, done.error
+	case <-timeout:
+		return nil, fmt.Errorf("Operation timed out after %s", duration.String())
+	}
+}
