@@ -32,7 +32,7 @@
     "command": "bash %s"
   },
   ".rs": {
-    "image":"jimmycuadra/rust",
+    "image": "jimmycuadra/rust:latest",
     "command": "rustc -o main %s && ./main"
   },
   ".c": {
@@ -44,11 +44,23 @@
     "command": "lci ./%s"
   },
   ".arnie": {
-    "image": "sosedoff/arnoldc",
-   "command": "java -jar /arnoldc.jar %s && java main"
+    "image": "sosedoff/arnoldc:latest",
+    "command": "java -jar /arnoldc.jar %s && java main"
   },
   ".bf": {
-    "image": "sosedoff/brainfuck",
+    "image": "sosedoff/brainfuck:latest",
     "command": "brainfuck %s"
+  },
+  ".swift": {
+    "image": "swiftdocker/swift:latest",
+    "command": "swift %s"
+  },
+  ".dart": {
+    "image": "google/dart:latest",
+    "command": "dart %s"
+  },
+  ".lua": {
+    "image": "bitrun/lua:latest",
+    "command": "lua %s"
   }
 }
