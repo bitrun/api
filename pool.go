@@ -89,7 +89,7 @@ func (pool *Pool) Load() error {
 }
 
 func (pool *Pool) Add() error {
-	container, err := CreateContainer(pool.Client, pool.Config, pool.Image, pool.Standby)
+	container, err := CreateContainer(pool.Client, pool.Config, pool.Image, pool.Standby, "")
 	if err != nil {
 		return err
 	}

@@ -17,7 +17,7 @@ func errorResponse(status int, err error, c *gin.Context) {
 
 func performRun(run *Run) (*RunResult, error) {
 	// Try to get a warmed-up container for the run
-	if pools[run.Request.Image] != nil {
+	if run.Request.Clean == false && pools[run.Request.Image] != nil {
 		container, err := pools[run.Request.Image].Get()
 
 		if err == nil {

@@ -3,12 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	docker "github.com/fsouza/go-dockerclient"
 )
 
-func CreateContainer(client *docker.Client, config *Config, image string, standby int) (*docker.Container, error) {
+func CreateContainer(client *docker.Client, config *Config, image string, standby int, env string) (*docker.Container, error) {
 	id, _ := randomHex(20)
 	volumePath := fmt.Sprintf("%s/%s", config.SharedPath, id)
 	name := fmt.Sprintf("bitrun-%v", time.Now().UnixNano())
@@ -39,6 +40,7 @@ func CreateContainer(client *docker.Client, config *Config, image string, standb
 			NetworkDisabled: config.NetworkDisabled,
 			WorkingDir:      "/code",
 			Cmd:             []string{"sleep", fmt.Sprintf("%v", standby)},
+			Env:             strings.Split(env, "\n"),
 		},
 	}
 

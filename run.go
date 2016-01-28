@@ -44,7 +44,7 @@ func NewRun(config *Config, client *docker.Client, req *Request) *Run {
 }
 
 func (run *Run) Setup() error {
-	container, err := CreateContainer(run.Client, run.Config, run.Request.Image, 60)
+	container, err := CreateContainer(run.Client, run.Config, run.Request.Image, 60, run.Request.Env)
 	if err != nil {
 		return err
 	}

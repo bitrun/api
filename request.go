@@ -20,6 +20,8 @@ type Request struct {
 	Format      string
 	MemoryLimit int64
 	NamespaceId string
+	Env         string
+	Clean       bool
 }
 
 var FilenameRegexp = regexp.MustCompile(`\A([a-z\d\-\_]+)\.[a-z]{1,12}\z`)
@@ -60,6 +62,12 @@ func ParseRequest(r *http.Request) (*Request, error) {
 		Image:       r.FormValue("image"),
 		MemoryLimit: parseInt(r.FormValue("memory_limit")),
 		NamespaceId: normalizeString(r.FormValue("namespace")),
+		Env:         strings.TrimSpace(r.FormValue("env")),
+		Clean:       false,
+	}
+
+	if r.FormValue("clean") == "1" {
+		req.Clean = true
 	}
 
 	if req.Filename == "" {
