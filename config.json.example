@@ -2,6 +2,7 @@
   "listen": "127.0.0.1:5000",
   "docker_host": "tcp://127.0.0.1:2375",
   "shared_path": "/tmp/bitrun_shared",
+  "languages_path": "./languages.json",
   "run_duration": 10,
   "throttle_quota": 5,
   "throttle_concurrency": 1,
