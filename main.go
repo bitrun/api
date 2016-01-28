@@ -9,7 +9,7 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 )
 
-const VERSION = "0.3.0"
+const VERSION = "0.3.1"
 
 func requireEnvVar(name string) {
 	if os.Getenv(name) == "" {
