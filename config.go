@@ -40,7 +40,7 @@ func NewConfig() *Config {
 	cfg.RunDuration = time.Second * 10
 	cfg.ThrottleQuota = 5
 	cfg.ThrottleConcurrency = 1
-	cfg.NetworkDisabled = true
+	cfg.NetworkDisabled = false
 	cfg.MemoryLimit = 67108864
 	cfg.Pools = []PoolConfig{}
 	cfg.FetchImages = false

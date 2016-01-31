@@ -6,7 +6,7 @@
   "run_duration": 10,
   "throttle_quota": 5,
   "throttle_concurrency": 1,
-  "network_disabled": true,
+  "network_disabled": false,
   "memory_limit": 67108864,
   "pools": [
     { "image": "bitrun/ruby:2.2", "capacity": 10 }
