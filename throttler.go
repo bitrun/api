@@ -11,6 +11,7 @@ type Throttler struct {
 	Quota       int
 	Clients     map[string]int
 	Requests    map[string]int
+	Whitelist   map[string]bool
 	*sync.Mutex
 }
 
@@ -20,6 +21,7 @@ func NewThrottler(concurrency int, quota int) *Throttler {
 		Quota:       quota,
 		Clients:     make(map[string]int),
 		Requests:    make(map[string]int),
+		Whitelist:   make(map[string]bool),
 		Mutex:       &sync.Mutex{},
 	}
 }
@@ -69,4 +71,15 @@ func (t *Throttler) Flush() {
 	for k := range t.Requests {
 		delete(t.Requests, k)
 	}
+}
+
+func (t *Throttler) SetWhitelist(ips []string) {
+	for _, ip := range ips {
+		t.Whitelist[ip] = true
+	}
+}
+
+func (t *Throttler) Whitelisted(ip string) bool {
+	_, ok := t.Whitelist[ip]
+	return ok
 }

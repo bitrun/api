@@ -6,8 +6,12 @@
   "run_duration": 10,
   "throttle_quota": 5,
   "throttle_concurrency": 1,
+  "throttle_whitelist": [
+    "127.0.0.1"
+  ],
   "network_disabled": false,
   "memory_limit": 67108864,
+  "fetch_images": true,
   "pools": [
     { "image": "bitrun/ruby:2.2", "capacity": 10 }
   ]

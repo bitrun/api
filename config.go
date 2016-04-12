@@ -21,6 +21,7 @@ type Config struct {
 	RunDuration         time.Duration `json:"run_duration"`
 	ThrottleQuota       int           `json:"throttle_quota"`
 	ThrottleConcurrency int           `json:"throttle_concurrency"`
+	ThrottleWhitelist   []string      `json:"throttle_whitelist"`
 	NetworkDisabled     bool          `json:"network_disabled"`
 	MemoryLimit         int64         `json:"memory_limit"`
 	Pools               []PoolConfig  `json:"pools"`

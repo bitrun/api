@@ -94,6 +94,12 @@ func throttleMiddleware(throttler *Throttler) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ip := strings.Split(c.Request.RemoteAddr, ":")[0]
 
+		// Bypass throttling for whitelisted IPs
+		if throttler.Whitelisted(ip) {
+			c.Next()
+			return
+		}
+
 		if err := throttler.Add(ip); err != nil {
 			errorResponse(429, err, c)
 			c.Abort()
@@ -115,6 +121,7 @@ func corsMiddleware() gin.HandlerFunc {
 
 func RunApi(config *Config, client *docker.Client) {
 	throttler := NewThrottler(config.ThrottleConcurrency, config.ThrottleQuota)
+	throttler.SetWhitelist(config.ThrottleWhitelist)
 	throttler.StartPeriodicFlush()
 
 	gin.SetMode(gin.ReleaseMode)
